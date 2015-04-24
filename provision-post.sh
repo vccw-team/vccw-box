@@ -2,11 +2,11 @@
 
 set -ex
 
-sudo yum -y distro-sync
-sudo yum -y clean all
-sudo rm -fr /var/www/wordpress
-sudo rm -f /etc/httpd/sites-available/wordpress.conf
-sudo rm -f /etc/httpd/sites-enabled/wordpress.conf
+yum -y distro-sync
+yum -y clean all
+rm -fr /var/www/wordpress
+rm -f /etc/httpd/sites-available/wordpress.conf
+rm -f /etc/httpd/sites-enabled/wordpress.conf
 
 rm -f /etc/ssh/ssh_host_*
 cd /var/log
@@ -16,9 +16,9 @@ cp /dev/null /var/log/syslog
 yes | cp /dev/null /root/.bash_history
 yes | cp /dev/null /home/vagrant/.bash_history
 
-sudo /etc/init.d/vboxadd setup
+/etc/init.d/vboxadd setup
 
-sudo ln -s -f /dev/null /etc/udev/rules.d/70-persistent-net.rules
+ln -s -f /dev/null /etc/udev/rules.d/70-persistent-net.rules
 
 curl -L https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub > /home/vagrant/.ssh/authorized_keys
 
@@ -27,4 +27,4 @@ chmod 600 /home/vagrant/.ssh/authorized_keys
 
 history -c
 
-sudo shutdown -r now
+shutdown -r now
