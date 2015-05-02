@@ -3,6 +3,7 @@
 
 require 'spec_helper'
 require 'yaml'
+require 'shellwords'
 
 _conf = YAML.load(
   File.open(
@@ -10,6 +11,16 @@ _conf = YAML.load(
     File::RDONLY
   ).read
 )
+
+if File.exists?(File.join(ENV["HOME"], '.vccw/config.yml'))
+  _custom = YAML.load(
+    File.open(
+      File.join(ENV["HOME"], '.vccw/config.yml'),
+      File::RDONLY
+    ).read
+  )
+  _conf.merge!(_custom) if _custom.is_a?(Hash)
+end
 
 if File.exists?('site.yml')
   _site = YAML.load(
@@ -19,6 +30,14 @@ if File.exists?('site.yml')
     ).read
   )
   _conf.merge!(_site) if _site.is_a?(Hash)
+end
+
+describe host(_conf['hostname']) do
+  it { should be_resolvable.by('hosts') }
+end
+
+describe interface('eth1') do
+  it { should have_ipv4_address(_conf['ip']) }
 end
 
 describe package('httpd') do
@@ -110,6 +129,12 @@ describe file(File.join(_conf['document_root'], _conf['wp_home'], '.htaccess')) 
   let(:disable_sudo) { true }
   it { should be_file }
   it { should be_owned_by 'vagrant' }
+end
+
+describe file(File.join(_conf['document_root'], _conf['wp_home'], '.gitignore')) do
+    let(:disable_sudo) { true }
+    it { should be_file }
+    it { should be_owned_by 'vagrant' }
 end
 
 describe file(File.join(_conf['document_root'], _conf['wp_home'], 'index.php')) do

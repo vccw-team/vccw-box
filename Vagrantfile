@@ -14,15 +14,25 @@ Vagrant.configure(2) do |config|
     ).read
   )
 
-  # if File.exists?(File.join(File.dirname(__FILE__), 'site.yml'))
-  #   _site = YAML.load(
-  #     File.open(
-  #       File.join(File.dirname(__FILE__), 'site.yml'),
-  #       File::RDONLY
-  #     ).read
-  #   )
-  #   _conf.merge!(_site) if _site.is_a?(Hash)
-  # end
+  if File.exists?(File.join(ENV["HOME"], '.vccw/config.yml'))
+    _custom = YAML.load(
+      File.open(
+        File.join(ENV["HOME"], '.vccw/config.yml'),
+        File::RDONLY
+      ).read
+    )
+    _conf.merge!(_custom) if _custom.is_a?(Hash)
+  end
+
+  if File.exists?(File.join(File.dirname(__FILE__), 'site.yml'))
+    _site = YAML.load(
+      File.open(
+        File.join(File.dirname(__FILE__), 'site.yml'),
+        File::RDONLY
+      ).read
+    )
+    _conf.merge!(_site) if _site.is_a?(Hash)
+  end
 
   if File.exists?(_conf['chef_cookbook_path'])
     chef_cookbooks_path = _conf['chef_cookbook_path']
@@ -34,19 +44,19 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.box = ENV['wp_box'] || _conf['wp_box']
-  # config.ssh.forward_agent = true
+  config.ssh.forward_agent = true
 
   config.vm.box_check_update = true
 
-  # config.vm.hostname = _conf['hostname']
-  # config.vm.network :private_network, ip: _conf['ip']
+  config.vm.hostname = _conf['hostname']
+  config.vm.network :private_network, ip: _conf['ip']
 
-  # config.vm.synced_folder ".", "/vagrant", :mount_options => ['dmode=755', 'fmode=644']
-  # config.vm.synced_folder "www/wordpress/", _conf['document_root'], :create => "true", :mount_options => ['dmode=755', 'fmode=644']
+  config.vm.synced_folder ".", "/vagrant", :mount_options => ['dmode=755', 'fmode=644']
+  config.vm.synced_folder _conf['sync_folder'], _conf['document_root'], :create => "true", :mount_options => ['dmode=755', 'fmode=644']
 
-  # if Vagrant.has_plugin?('vagrant-hostsupdater')
-  #   config.hostsupdater.remove_on_suspend = true
-  # end
+  if Vagrant.has_plugin?('vagrant-hostsupdater')
+    config.hostsupdater.remove_on_suspend = true
+  end
 
   config.vm.provider :virtualbox do |vb|
     vb.customize [
@@ -105,6 +115,7 @@ Vagrant.configure(2) do |config|
         :locale            => ENV['wp_lang'] || _conf['lang'],
         :admin_user        => _conf['admin_user'],
         :admin_password    => _conf['admin_pass'],
+        :admin_email       => _conf['admin_email'],
         :default_plugins   => _conf['plugins'],
         :default_theme     => _conf['theme'],
         :title             => _conf['title'],
@@ -151,14 +162,6 @@ Vagrant.configure(2) do |config|
       }
     }
 
-    chef.add_recipe 'yum::remi'
-    chef.add_recipe 'iptables'
-    chef.add_recipe 'apache2'
-    chef.add_recipe 'apache2::mod_php5'
-    chef.add_recipe 'apache2::mod_ssl'
-    chef.add_recipe 'mysql::server'
-    chef.add_recipe 'mysql::ruby'
-    chef.add_recipe 'php::package'
     chef.add_recipe 'wpcli'
     chef.add_recipe 'wpcli::install'
     chef.add_recipe 'vccw'

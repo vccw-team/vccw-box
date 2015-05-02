@@ -3,7 +3,23 @@
 
 require 'shellwords'
 
-# node.set_unless[:wpcli][:dbpassword] = secure_password
+include_recipe 'apache2'
+include_recipe 'apache2::mod_php5'
+include_recipe 'apache2::mod_ssl'
+include_recipe 'mysql::server'
+include_recipe 'mysql::ruby'
+
+service "iptables" do
+  supports :status => true, :restart => true
+  action [:enable, :start]
+end
+
+template "/etc/sysconfig/iptables" do
+  source "wordpress-iptables.erb"
+  owner "root"
+  group "root"
+  mode "0600"
+end
 
 execute "mysql-install-wp-privileges" do
   command "/usr/bin/mysql -u root -p\"#{node[:mysql][:server_root_password]}\" < #{node[:mysql][:conf_dir]}/wp-grants.sql"
@@ -64,7 +80,7 @@ WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp core
 WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp core download \\
 --path=#{File.join(node[:wpcli][:wp_docroot], node[:wpcli][:wp_siteurl])} \\
 --locale=#{Shellwords.shellescape(node[:wpcli][:locale])} \\
---version=#{Shellwords.shellescape(node[:wpcli][:wp_version])} \\
+--version=#{Shellwords.shellescape(node[:wpcli][:wp_version].to_s)} \\
 --force
       EOH
   end
@@ -96,6 +112,10 @@ define( 'JETPACK_DEV_DEBUG', #{node[:wpcli][:debug_mode]} );
 define( 'WP_DEBUG', #{node[:wpcli][:debug_mode]} );
 define( 'FORCE_SSL_ADMIN', #{node[:wpcli][:force_ssl_admin]} );
 define( 'SAVEQUERIES', #{node[:wpcli][:savequeries]} );
+#{if node[:wpcli][:is_multisite] == true then <<MULTISITE
+define( 'WP_ALLOW_MULTISITE', true );
+MULTISITE
+end}
 PHP
   EOH
 end
@@ -203,7 +223,7 @@ node[:wpcli][:options].each do |key, value|
     user node[:wpcli][:user]
     group node[:wpcli][:group]
     cwd File.join(node[:wpcli][:wp_docroot], node[:wpcli][:wp_siteurl])
-    code "WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp option update #{Shellwords.shellescape(key)} #{Shellwords.shellescape(value)}"
+    code "WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp option update #{Shellwords.shellescape(key.to_s)} #{Shellwords.shellescape(value.to_s)}"
   end
 end
 
@@ -241,10 +261,15 @@ if node[:wpcli][:is_multisite] == true then
   end
 end
 
-remote_file node[:wpcli][:gitignore] do
-  source node[:wpcli][:gitignore_url]
-  mode 0644
+template File.join(node[:wpcli][:wp_docroot], node[:wpcli][:wp_home], '.gitignore') do
+  source "gitignore.erb"
+  owner node[:wpcli][:user]
+  group node[:wpcli][:group]
+  mode "0644"
   action :create_if_missing
+  variables(
+    :siteurl => File.join(node[:wpcli][:wp_siteurl], '/'),
+  )
 end
 
 apache_site "000-default" do
@@ -268,5 +293,3 @@ bash "create-ssl-keys" do
   EOH
   notifies :restart, "service[apache2]"
 end
-
-iptables_rule "wordpress-iptables"

@@ -4,6 +4,9 @@ set -ex
 
 yum -y distro-sync
 yum -y clean all
+
+/etc/init.d/httpd stop
+
 rm -fr /var/www/wordpress
 rm -f /etc/httpd/sites-available/wordpress.conf
 rm -f /etc/httpd/sites-enabled/wordpress.conf
