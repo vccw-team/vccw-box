@@ -19,7 +19,7 @@ cp /dev/null /var/log/syslog
 yes | cp /dev/null /root/.bash_history
 yes | cp /dev/null /home/vagrant/.bash_history
 
-/etc/init.d/vboxadd setup
+# /etc/init.d/vboxadd setup
 
 ln -s -f /dev/null /etc/udev/rules.d/70-persistent-net.rules
 
