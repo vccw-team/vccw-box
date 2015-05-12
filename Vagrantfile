@@ -14,26 +14,6 @@ Vagrant.configure(2) do |config|
     ).read
   )
 
-  if File.exists?(File.join(ENV["HOME"], '.vccw/config.yml'))
-    _custom = YAML.load(
-      File.open(
-        File.join(ENV["HOME"], '.vccw/config.yml'),
-        File::RDONLY
-      ).read
-    )
-    _conf.merge!(_custom) if _custom.is_a?(Hash)
-  end
-
-#  if File.exists?(File.join(File.dirname(__FILE__), 'site.yml'))
-#    _site = YAML.load(
-#      File.open(
-#        File.join(File.dirname(__FILE__), 'site.yml'),
-#        File::RDONLY
-#      ).read
-#    )
-#    _conf.merge!(_site) if _site.is_a?(Hash)
-#  end
-
   if File.exists?(_conf['chef_cookbook_path'])
     chef_cookbooks_path = _conf['chef_cookbook_path']
   elsif File.exists?(File.join(File.dirname(__FILE__), _conf['chef_cookbook_path']))
