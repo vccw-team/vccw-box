@@ -31,4 +31,7 @@ chmod 644 /home/vagrant/.ssh/authorized_keys
 
 history -c
 
+dd if=/dev/zero of=empty bs=1M
+rm empty
+
 shutdown -r now
