@@ -31,4 +31,3 @@ chmod 644 /home/vagrant/.ssh/authorized_keys
 
 history -c
 
-shutdown -r now

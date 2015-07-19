@@ -5,7 +5,6 @@
 Movefile
 _site
 package.box
-provision-pre.sh
 site.yml
 vendor
 www
