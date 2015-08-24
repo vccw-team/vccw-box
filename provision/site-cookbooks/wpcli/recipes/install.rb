@@ -11,14 +11,7 @@ include_recipe 'mysql::ruby'
 
 service "iptables" do
   supports :status => true, :restart => true
-  action [:enable, :start]
-end
-
-template "/etc/sysconfig/iptables" do
-  source "wordpress-iptables.erb"
-  owner "root"
-  group "root"
-  mode "0600"
+  action [:disable, :stop]
 end
 
 execute "mysql-install-wp-privileges" do
@@ -112,10 +105,6 @@ define( 'JETPACK_DEV_DEBUG', #{node[:wpcli][:debug_mode]} );
 define( 'WP_DEBUG', #{node[:wpcli][:debug_mode]} );
 define( 'FORCE_SSL_ADMIN', #{node[:wpcli][:force_ssl_admin]} );
 define( 'SAVEQUERIES', #{node[:wpcli][:savequeries]} );
-#{if node[:wpcli][:is_multisite] == true then <<MULTISITE
-define( 'WP_ALLOW_MULTISITE', true );
-MULTISITE
-end}
 PHP
   EOH
 end
@@ -184,13 +173,7 @@ if node[:wpcli][:default_theme] != '' then
       user node[:wpcli][:user]
       group node[:wpcli][:group]
       cwd File.join(node[:wpcli][:wp_docroot], node[:wpcli][:wp_siteurl])
-      code "WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp theme install #{Shellwords.shellescape(node[:wpcli][:default_theme])}"
-    end
-    bash "WordPress #{node[:wpcli][:default_theme]} activate" do
-      user node[:wpcli][:user]
-      group node[:wpcli][:group]
-      cwd File.join(node[:wpcli][:wp_docroot], node[:wpcli][:wp_siteurl])
-      code "WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp theme activate #{File.basename(Shellwords.shellescape(node[:wpcli][:default_theme])).sub(/\..*$/, '')}"
+      code "WP_CLI_CONFIG_PATH=#{Shellwords.shellescape(node[:wpcli][:config_path])} wp theme install #{Shellwords.shellescape(node[:wpcli][:default_theme])} --activate"
     end
 end
 

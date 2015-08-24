@@ -2,7 +2,6 @@
 # vim: ft=ruby expandtab shiftwidth=2 tabstop=2
 
 require 'spec_helper'
-require 'yaml'
 require 'shellwords'
 
 describe file('/usr/local/share/wp-i18n/makepot.php') do
@@ -20,12 +19,12 @@ describe command('grunt-init --version') do
   its(:exit_status) { should eq 0 }
  end
 
-describe file('/home/vagrant/.grunt-init/hatamoto/README.md') do
+describe file("/home/#{Shellwords.shellescape($conf['user'])}/.grunt-init/hatamoto/README.md") do
   let(:disable_sudo) { true }
   it { should be_file }
 end
 
-describe file('/home/vagrant/.grunt-init/iemoto/README.md') do
+describe file("/home/#{Shellwords.shellescape($conf['user'])}/.grunt-init/iemoto/README.md") do
   let(:disable_sudo) { true }
   it { should be_file }
 end

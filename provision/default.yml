@@ -8,9 +8,15 @@ wp_box: chef/centos-7.0
 chef_cookbook_path: ./provision
 
 #
+# Virtual Machine Settings
+#
+memory: 512
+cpus: 1
+
+#
 # Network Settings
 #
-hostname: wordpress.local
+hostname: vccw.dev
 ip: 192.168.33.10
 sync_folder: 'www/wordpress'
 
@@ -82,3 +88,21 @@ theme_unit_test_uri: https://wpcom-themes.svn.automattic.com/demo/theme-unit-tes
 # DB will be reset when provision
 #
 reset_db_on_provision: true
+
+#
+# Are you hurrying a lot?
+#
+disable_vccw_cookbook: false
+
+
+#
+# User and Group
+#
+user: vagrant
+group: vagrant
+
+
+#
+# phpenv
+#
+php_version: default

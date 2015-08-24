@@ -25,3 +25,10 @@ default[:vccw][:wordmove][:dbhost]     = 'localhost'
 default[:vccw][:wordmove][:dbname]     = 'wordpress'
 default[:vccw][:wordmove][:dbuser]     = 'wordpress'
 default[:vccw][:wordmove][:dbpassword] = 'wordpress'
+
+default[:vccw][:user] = 'vagrant'
+default[:vccw][:group] = 'vagrant'
+
+default[:vccw][:phpenv][:phpenv_root]  = '/usr/local/phpenv'
+default[:vccw][:phpenv][:install]      = 'curl -L https://raw.github.com/CHH/phpenv/master/bin/phpenv-install.sh | sh'
+default[:vccw][:phpenv][:php_version]  = 'default'
