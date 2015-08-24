@@ -28,7 +28,7 @@ Vagrant.configure(2) do |config|
   config.vm.define _conf['hostname'] do |v|
   end
 
-  config.vm.box = ENV['wp_box'] || _conf['wp_box']
+  config.vm.box = _conf['wp_box']
   # config.ssh.forward_agent = true
   config.ssh.insert_key = false
 
